@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Tube rhythm</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</head>
+<body>
+<div id="bg"><div id="yt"></div></div>
+<div id="dim"></div>
+<div id="pulse"></div>
+
+<div id="field" hidden>
+  <div id="cursor-dot"></div>
+</div>
+
+<canvas id="slice-canvas"></canvas>
+
+<div id="hud" hidden>
+  <div id="bar"><i id="barfill"></i></div>
+  <div id="score">0</div>
+  <div id="acc">100.00%</div>
+  <div id="combo"></div>
+</div>
+
+<section id="screen-start" class="screen">
+  <h1>Tube rhythm</h1>
+  <p class="sub">Paste a YouTube link. Click or slice the circles on the beat.</p>
+  <div class="row">
+    <input id="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
+    <button id="load">Load video</button>
+  </div>
+  <p id="msg" class="msg"></p>
+  <div id="setup" hidden>
+    <p id="title" class="title"></p>
+    <div class="grid">
+      <label>Play Mode
+        <select id="play-mode">
+          <option value="pc">PC User (Clamped Dot / Keys)</option>
+          <option value="mobile">Mobile User (Ninja Fruit Swipe)</option>
+        </select>
+      </label>
+      <label>BPM<input id="bpm" type="number" value="120" min="30" max="300"></label>
+      <label>First beat (ms)<input id="offset" type="number" value="0"></label>
+      <label>Approach (ms)<input id="approach" type="number" value="900" min="300" max="2000"></label>
+      <label>Volume<input id="vol" type="range" min="0" max="100" value="40"></label>
+    </div>
+    <textarea id="map" spellcheck="false" aria-label="Beatmap"></textarea>
+    <div class="row">
+      <button id="gen" class="alt">Regenerate pattern</button>
+      <button id="play">Play</button>
+    </div>
+    <p class="hint">PC: Keys Z / X or click. Mobile: Drag across target circles!</p>
+  </div>
+</section>
+
+<section id="screen-pause" class="screen" hidden>
+  <h2>Paused</h2>
+  <div class="row"><button id="resume">Resume</button><button id="quit" class="alt">Quit</button></div>
+</section>
+
+<section id="screen-result" class="screen" hidden>
+  <div id="grade">S</div>
+  <div id="r-score"></div>
+  <div id="r-stats"></div>
+  <div class="row"><button id="retry">Retry</button><button id="again" class="alt">New song</button></div>
+</section>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
