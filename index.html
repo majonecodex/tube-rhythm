@@ -1,73 +1,287 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Tube rhythm</title>
-<link rel="stylesheet" href="css/style.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tube Rhythm</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<div id="bg"><div id="yt"></div></div>
-<div id="dim"></div>
-<div id="pulse"></div>
+<body data-theme="cyberpunk">
 
-<div id="field" hidden>
-  <div id="cursor-dot"></div>
-</div>
+  <!-- Background Video Container -->
+  <div id="bg"><div id="yt"></div></div>
+  <div id="dim"></div>
+  <div id="pulse"></div>
 
-<canvas id="slice-canvas"></canvas>
-
-<div id="hud" hidden>
-  <div id="bar"><i id="barfill"></i></div>
-  <div id="score">0</div>
-  <div id="acc">100.00%</div>
-  <div id="combo"></div>
-</div>
-
-<section id="screen-start" class="screen">
-  <h1>Tube rhythm</h1>
-  <p class="sub">Paste a YouTube link. Click or slice the circles on the beat.</p>
-  <div class="row">
-    <input id="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
-    <button id="load">Load video</button>
-  </div>
-  <p id="msg" class="msg"></p>
-  <div id="setup" hidden>
-    <p id="title" class="title"></p>
-    <div class="grid">
-      <label>Play Mode
-        <select id="play-mode">
-          <option value="pc">PC User (Clamped Dot / Keys)</option>
-          <option value="mobile">Mobile User (Ninja Fruit Swipe)</option>
-        </select>
-      </label>
-      <label>BPM<input id="bpm" type="number" value="120" min="30" max="300"></label>
-      <label>First beat (ms)<input id="offset" type="number" value="0"></label>
-      <label>Approach (ms)<input id="approach" type="number" value="900" min="300" max="2000"></label>
-      <label>Volume<input id="vol" type="range" min="0" max="100" value="40"></label>
+  <!-- Playfield Canvas Frame -->
+  <div id="field" hidden>
+    <!-- Chibi Companion Container -->
+    <div id="chibi-companion" hidden>
+      <img id="chibi-img" alt="Chibi Companion" />
     </div>
-    <textarea id="map" spellcheck="false" aria-label="Beatmap"></textarea>
+    <div id="cursor-dot"></div>
+  </div>
+
+  <canvas id="slice-canvas"></canvas>
+
+  <!-- HUD Overlay -->
+  <div id="hud" hidden>
+    <div id="bar"><div id="barfill"></div></div>
+    <div id="score">0</div>
+    <div id="acc">100.00%</div>
+    <div id="combo"></div>
+  </div>
+
+  <!-- Start & Setup Screen -->
+  <div id="screen-start" class="screen main-menu-screen">
+    <!-- Top Bar Navigation Structure -->
+    <header class="menu-top-bar">
+      <div class="logo-title">TUBE RHYTHM</div>
+      <button type="button" class="bug-report-btn" id="btn-bug">💬 Found a bug?</button>
+      <nav class="nav-icons">
+        <button type="button" class="nav-icon-btn" id="nav-scores">
+          <span class="icon">🏆</span>
+          <span class="label">SCORES</span>
+        </button>
+        <button type="button" class="nav-icon-btn" id="nav-profile">
+          <span class="icon">👤</span>
+          <span class="label">PROFILE</span>
+        </button>
+        <button type="button" class="nav-icon-btn" id="nav-settings">
+          <span class="icon">⚙️</span>
+          <span class="label">SETTINGS</span>
+        </button>
+        <button type="button" class="nav-icon-btn" id="nav-help">
+          <span class="icon">❓</span>
+          <span class="label">HELP</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="menu-body">
+      <!-- Left Primary Navigation -->
+      <div class="primary-nav">
+        <button type="button" class="menu-nav-item active" id="btn-menu-play">
+          <span class="bullet">▶</span> PLAY
+        </button>
+        <button type="button" class="menu-nav-item" id="btn-menu-practice">
+          <span class="bullet">🎯</span> PRACTICE
+        </button>
+        <button type="button" class="menu-nav-item" id="btn-menu-songs">
+          <span class="bullet">🎵</span> SONGS
+        </button>
+      </div>
+
+      <!-- Right Mascot Showcase -->
+      <div class="mascot-showcase">
+        <img src="mascot.png" alt="Tube Rhythm Mascot" class="menu-mascot-img" />
+      </div>
+    </div>
+
+    <!-- YouTube Loader & Setup Panel Container (Hidden by default, revealed on PLAY/SETTINGS) -->
+    <div class="menu-setup-container" id="menu-setup-container" hidden>
+      <div class="panel-header">
+        <button type="button" class="back-btn" id="btn-back-main">← Back to Menu</button>
+        <h3 class="panel-title" id="panel-title-text">Song & Game Setup</h3>
+      </div>
+
+      <div class="row" id="url-loader-row">
+        <input type="text" id="url" placeholder="https://www.youtube.com/watch?v=..." value="https://www.youtube.com/watch?v=FtutLA63Cp8">
+        <button id="load">Load Video</button>
+      </div>
+      <p id="msg" class="msg"></p>
+
+      <div id="setup">
+        <!-- High Score Banner -->
+        <div id="highscore-container"></div>
+
+        <!-- Navigation Menu Tabs -->
+        <div class="menu-tabs">
+          <button type="button" class="tab-btn active" data-tab="tab-game">Game Setup</button>
+          <button type="button" class="tab-btn" data-tab="tab-theme">Theme & BGM</button>
+          <button type="button" class="tab-btn" data-tab="tab-companion">Chibi Companion</button>
+        </div>
+
+        <!-- Tab 1: Game Settings & Beatmap -->
+        <div id="tab-game" class="tab-content active">
+          <h3 id="title" class="title"></h3>
+          
+          <div class="grid">
+            <label>
+              Play Mode
+              <select id="play-mode">
+                <option value="pc">PC User (Clamped Cursor & Keybinds)</option>
+                <option value="mobile">Mobile User (Fruit Ninja Touch Swipe)</option>
+              </select>
+            </label>
+            <label>BPM <input type="number" id="bpm" value="120" min="30" max="300"></label>
+            <label>First Beat (ms) <input type="number" id="offset" value="0" step="50"></label>
+            <label>Approach (ms) <input type="number" id="approach" value="900" min="300" max="2000" step="50"></label>
+            <label>Volume <input type="range" id="vol" value="80" min="0" max="100"></label>
+          </div>
+
+          <div class="grid" style="margin-top: 6px;">
+            <label>
+              Hit Key 1
+              <input type="text" id="key1" value="Z" maxlength="1" style="text-align: center; text-transform: uppercase; font-weight: bold;">
+            </label>
+            <label>
+              Hit Key 2
+              <input type="text" id="key2" value="X" maxlength="1" style="text-align: center; text-transform: uppercase; font-weight: bold;">
+            </label>
+          </div>
+
+          <label>Beatmap Script (osu! format)</label>
+          <textarea id="map"></textarea>
+
+          <div class="row">
+            <button id="gen" class="alt">Regenerate Pattern</button>
+          </div>
+        </div>
+
+        <!-- Tab 2: Visual Theme & Menu BGM Settings -->
+        <div id="tab-theme" class="tab-content">
+          <h3 class="title">Visual Theme & Audio Settings</h3>
+
+          <div class="grid">
+            <label>
+              Skin Theme Preset
+              <select id="select-theme">
+                <option value="cyberpunk">Cyberpunk Neon (Default)</option>
+                <option value="kawaii">Pastel Kawaii</option>
+                <option value="monochrome">Monochrome Minimal</option>
+                <option value="synthwave">Retro Synthwave</option>
+                <option value="high-contrast">High Contrast Pro</option>
+              </select>
+            </label>
+
+            <label>
+              Background Video Dim
+              <input type="range" id="video-dim" value="58" min="0" max="100" step="5">
+            </label>
+          </div>
+
+          <!-- Live Theme Target Preview -->
+          <div style="font-size: 12px; opacity: 0.8; margin-top: 2px;">Theme Target Colors Preview:</div>
+          <div class="theme-preview-box">
+            <div class="tp-circle" style="background: var(--target-c1);">1</div>
+            <div class="tp-circle" style="background: var(--target-c2);">2</div>
+            <div class="tp-circle" style="background: var(--target-c3);">3</div>
+            <div class="tp-circle" style="background: var(--target-c4);">4</div>
+          </div>
+
+          <h4 style="margin: 10px 0 4px 0;">Menu Theme Song (Audio BGM)</h4>
+          <div class="grid">
+            <label>
+              Menu Theme BGM
+              <select id="bgm-toggle">
+                <option value="enabled">Enabled</option>
+                <option value="disabled">Muted</option>
+              </select>
+            </label>
+            <label>
+              BGM Volume
+              <input type="range" id="bgm-volume" value="40" min="0" max="100">
+            </label>
+          </div>
+        </div>
+
+        <!-- Tab 3: Chibi Companion Setup & Upload -->
+        <div id="tab-companion" class="tab-content">
+          <h3 class="title">Chibi Companion Customization</h3>
+          
+          <div class="companion-upload-box">
+            <div class="preview-area">
+              <div id="companion-preview-placeholder">Default Mascot Active</div>
+              <img id="companion-preview-img" hidden alt="Preview" />
+            </div>
+            <div class="upload-controls">
+              <input type="file" id="chibi-file-input" accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" hidden>
+              <button type="button" id="chibi-upload-btn">Upload Image (PNG/JPG/GIF/WebP)</button>
+              <button type="button" id="chibi-remove-btn" class="alt" hidden>Remove Custom Image</button>
+              <p class="hint">Recommended: Transparent PNG or Animated GIF (Max 10MB)</p>
+            </div>
+          </div>
+
+          <div class="grid" style="margin-top: 10px;">
+            <label>
+              Enable Companion
+              <select id="chibi-enabled">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+              </select>
+            </label>
+
+            <label>
+              Movement Mode
+              <select id="chibi-mode">
+                <option value="wander">Random Wander</option>
+                <option value="follow">Follow Cursor</option>
+                <option value="idle">Idle / Stationary</option>
+                <option value="random">Random Mix</option>
+              </select>
+            </label>
+
+            <label>Size (px) <input type="number" id="chibi-size" value="70" min="30" max="180"></label>
+            <label>Speed <input type="range" id="chibi-speed" value="1.0" min="0.2" max="3.0" step="0.1"></label>
+            <label>Opacity <input type="range" id="chibi-opacity" value="0.9" min="0.1" max="1.0" step="0.05"></label>
+
+            <label>
+              Dim During Play
+              <select id="chibi-dim-gameplay">
+                <option value="false">Normal Visibility</option>
+                <option value="true">Semi-Transparent (50%)</option>
+                <option value="hide">Hide Completely</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="row" style="margin-top: 10px;">
+            <button type="button" id="chibi-reset-btn" class="alt">Reset Companion Settings</button>
+          </div>
+        </div>
+
+        <!-- Action Button to Start Game -->
+        <div class="row" style="margin-top: 14px;">
+          <button id="play" style="width: 100%; font-size: 1.2em; padding: 14px;">Play Game</button>
+        </div>
+        
+        <p id="keybind-hint" class="hint">PC Controls: Aim with Mouse | Hit with Key 1 / Key 2 or Left Click | Esc to Pause</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause Overlay -->
+  <div id="screen-pause" class="screen" hidden>
+    <h2>Paused</h2>
     <div class="row">
-      <button id="gen" class="alt">Regenerate pattern</button>
-      <button id="play">Play</button>
+      <button id="resume">Resume</button>
+      <button id="retry" class="alt">Retry</button>
+      <button id="quit" class="alt">Quit to Menu</button>
     </div>
-    <p class="hint">PC: Keys Z / X or click. Mobile: Drag across target circles!</p>
   </div>
-</section>
 
-<section id="screen-pause" class="screen" hidden>
-  <h2>Paused</h2>
-  <div class="row"><button id="resume">Resume</button><button id="quit" class="alt">Quit</button></div>
-</section>
+  <!-- Result Screen -->
+  <div id="screen-result" class="screen" hidden>
+    <div id="grade">S</div>
+    <div id="r-score">0</div>
+    <div id="r-stats"></div>
+    <button id="again">Play Again</button>
+  </div>
 
-<section id="screen-result" class="screen" hidden>
-  <div id="grade">S</div>
-  <div id="r-score"></div>
-  <div id="r-stats"></div>
-  <div class="row"><button id="retry">Retry</button><button id="again" class="alt">New song</button></div>
-</section>
+  <!-- Custom Web UI Modal Dialog (Replaces native browser alert) -->
+  <div id="custom-modal" class="modal-overlay" hidden>
+    <div class="modal-card">
+      <h3 id="modal-title" class="modal-title">TUBE RHYTHM</h3>
+      <div id="modal-body" class="modal-body"></div>
+      <div class="modal-actions">
+        <button type="button" id="modal-close-btn">OK</button>
+      </div>
+    </div>
+  </div>
 
-<script type="module" src="js/main.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
